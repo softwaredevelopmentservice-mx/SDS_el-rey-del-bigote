@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 96" fill="none">
+  <!-- corona roja -->
+  <path d="M30 40 L24 12 L44 26 L60 6 L76 26 L96 12 L90 40 Z" fill="#D7262E"/>
+  <circle cx="24" cy="11" r="4" fill="#F4F2EE"/>
+  <circle cx="60" cy="5" r="4.5" fill="#F4F2EE"/>
+  <circle cx="96" cy="11" r="4" fill="#F4F2EE"/>
+  <rect x="30" y="42" width="60" height="6" rx="1" fill="#2A56C6"/>
+  <!-- bigote blanco -->
+  <path d="M60 62 C54 56 44 55 36 60 C28 65 20 70 10 66 C6 64 4 60 6 57 C7 63 14 65 20 61 C30 54 40 50 50 54 C55 56 58 58 60 59 C62 58 65 56 70 54 C80 50 90 54 100 61 C106 65 113 63 114 57 C116 60 114 64 110 66 C100 70 92 65 84 60 C76 55 66 56 60 62 Z" fill="#F4F2EE"/>
+  <path d="M10 66 C4 70 2 78 8 84 C6 78 9 73 14 70 Z" fill="#F4F2EE"/>
+  <path d="M110 66 C116 70 118 78 112 84 C114 78 111 73 106 70 Z" fill="#F4F2EE"/>
+</svg>

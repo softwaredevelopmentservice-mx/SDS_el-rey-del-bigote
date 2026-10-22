@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>El Rey del Bigote</title>
+  <meta name="description" content="Barbería en Ciudad Hidalgo, Michoacán. Reserva tu corte en línea y llega directo a la silla.">
+  <meta name="theme-color" content="#0E0F12">
+  <meta property="og:title" content="El Rey del Bigote">
+  <meta property="og:description" content="Reserva tu corte en un minuto y llega directo a la silla.">
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip" href="#reserva">Ir a reservar</a>
+
+  <header class="nav">
+    <div class="nav-in">
+      <a class="brand" href="#inicio" aria-label="El Rey del Bigote, inicio">
+        <img src="assets/logo.svg" alt="" width="44" height="35">
+        <span>El Rey del Bigote</span>
+      </a>
+      <nav class="nav-links" aria-label="Secciones">
+        <a href="#promos">Promos</a>
+        <a href="#precios">Precios</a>
+        <a href="#lando">Barbero</a>
+        <a href="#visitanos">Horario</a>
+      </nav>
+      <a class="btn btn-red btn-sm" href="#reserva">Reservar cita</a>
+    </div>
+  </header>
+
+  <main>
+    <!-- Portada -->
+    <section class="hero" id="inicio">
+      <div class="hero-in">
+        <div class="hero-text">
+          <h1 class="title" aria-label="El Rey del Bigote">
+            <span class="t-line t-1"><span>El Rey</span></span>
+            <span class="t-line t-2"><span>del</span></span>
+            <span class="t-line t-3"><span>Bigote</span></span>
+          </h1>
+          <p class="hero-sub">Corte de rey sin hacer fila. Aparta tu lugar en un minuto y llega directo a la silla.</p>
+          <div class="hero-cta">
+            <a class="btn btn-red btn-lg" href="#reserva">Reservar cita</a>
+            <a class="btn btn-line btn-lg" href="#precios">Ver precios</a>
+          </div>
+          <p class="status" id="status" aria-live="polite"></p>
+        </div>
+
+        <img class="hero-mark" src="assets/logo.svg" alt="" aria-hidden="true">
+        <div class="pole-wrap" aria-hidden="true">
+          <div class="pole-cap pole-cap-top"><span></span></div>
+          <div class="pole"><div class="pole-stripes"></div><div class="pole-shade"></div></div>
+          <div class="pole-cap pole-cap-bottom"><span></span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cinta -->
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker-track">
+        <span>Corte de adulto</span><i class="s-red"></i><span>Degradado</span><i class="s-blue"></i><span>Escolar</span><i class="s-red"></i><span>Barba</span><i class="s-blue"></i><span>Corte de niño</span><i class="s-red"></i><span>Corte y barba</span><i class="s-blue"></i>
+        <span>Corte de adulto</span><i class="s-red"></i><span>Degradado</span><i class="s-blue"></i><span>Escolar</span><i class="s-red"></i><span>Barba</span><i class="s-blue"></i><span>Corte de niño</span><i class="s-red"></i><span>Corte y barba</span><i class="s-blue"></i>
+      </div>
+    </div>
+
+    <!-- Promociones -->
+    <section class="promos" id="promos" aria-labelledby="promos-t">
+      <div class="wrap">
+        <h2 id="promos-t" class="h2">Promos de lunes a viernes</h2>
+        <p class="lead">Entre semana tu corte trae algo de la tiendita. Nomás llega a tu cita.</p>
+        <ol class="promo-list" id="promoList"></ol>
+      </div>
+    </section>
+
+    <!-- Precios -->
+    <section class="prices" id="precios" aria-labelledby="precios-t">
+      <div class="wrap prices-grid">
+        <div class="prices-feature">
+          <h2 id="precios-t" class="h2">Precios</h2>
+          <div class="combo">
+            <p class="combo-name">Corte y barba</p>
+            <p class="combo-price"><span>$</span>200</p>
+            <p class="combo-note">El favorito de la casa. Una hora en la silla.</p>
+            <a class="btn btn-white" href="#reserva" data-quick="combo">Reservar este</a>
+          </div>
+        </div>
+        <dl class="price-list">
+          <div><dt>Corte de adulto<small>40 min</small></dt><dd>$150</dd></div>
+          <div><dt>Corte de adolescente<small>30 min</small></dt><dd>$120</dd></div>
+          <div><dt>Corte de niño<small>30 min</small></dt><dd>$100</dd></div>
+          <div><dt>Arreglo de barba<small>20 min</small></dt><dd>$80</dd></div>
+          <div><dt>Degradado<small>A cualquier corte</small></dt><dd>+$20</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- Barbero -->
+    <section class="crew" id="lando" aria-labelledby="crew-t">
+      <div class="wrap">
+        <h2 id="crew-t" class="h2">Tu barbero</h2>
+        <div class="crew-list" id="crew"></div>
+      </div>
+    </section>
+
+    <!-- Reserva -->
+    <section class="booking" id="reserva" aria-labelledby="reserva-t">
+      <div class="wrap">
+        <h2 id="reserva-t" class="h2">Aparta tu silla</h2>
+        <p class="lead">Tres pasos y listo. Te confirmamos por WhatsApp.</p>
+
+        <div class="booking-grid">
+          <form class="flow" id="flow" novalidate>
+            <ol class="steps" aria-label="Progreso">
+              <li data-step="1" class="is-active"><b>1</b>Servicio</li>
+              <li data-step="2"><b>2</b>Día y hora</li>
+              <li data-step="3"><b>3</b>Tus datos</li>
+            </ol>
+
+            <fieldset class="panel is-active" data-panel="1">
+              <legend>¿Qué te hacemos?</legend>
+              <div class="barber-pick" id="barberPick"></div>
+
+              <p class="q" id="whoLabel">¿Para quién es?</p>
+              <div class="choices choices-who" id="who" role="radiogroup" aria-labelledby="whoLabel"></div>
+
+              <div class="subchoice" id="styleBlock" hidden>
+                <p class="q" id="styleLabel">¿Qué estilo?</p>
+                <div class="choices choices-style" id="styles" role="radiogroup" aria-labelledby="styleLabel"></div>
+              </div>
+
+              <label class="addon" id="beardBlock" hidden>
+                <input type="checkbox" id="beard">
+                <span class="addon-box" aria-hidden="true"></span>
+                <span class="addon-text"><strong>Agregar barba</strong><small>+$50 y 20 min más</small></span>
+              </label>
+
+              <div class="panel-foot">
+                <button type="button" class="btn btn-red" data-next="2" id="toStep2" disabled>Elegir día y hora</button>
+              </div>
+            </fieldset>
+
+            <fieldset class="panel" data-panel="2">
+              <legend>¿Cuándo vienes?</legend>
+              <div class="days" id="days" role="radiogroup" aria-label="Día"></div>
+              <p class="promo-hint" id="promoHint" hidden></p>
+              <p class="q" id="slotsLabel">Horarios libres</p>
+              <div class="slots" id="slots" role="radiogroup" aria-labelledby="slotsLabel"></div>
+              <p class="legend-row"><span class="key key-free"></span>Libre <span class="key key-taken"></span>Ocupado</p>
+              <div class="panel-foot">
+                <button type="button" class="btn btn-line" data-prev="1">Atrás</button>
+                <button type="button" class="btn btn-red" data-next="3" id="toStep3" disabled>Poner mis datos</button>
+              </div>
+            </fieldset>
+
+            <fieldset class="panel" data-panel="3">
+              <legend>¿A nombre de quién?</legend>
+              <label class="field">
+                <span>Nombre</span>
+                <input type="text" id="name" name="name" autocomplete="name" placeholder="Ej. Juan Pérez" required>
+                <small class="err" id="nameErr"></small>
+              </label>
+              <label class="field">
+                <span>WhatsApp</span>
+                <input type="tel" id="phone" name="phone" autocomplete="tel" inputmode="numeric" placeholder="10 dígitos" maxlength="14" required>
+                <small class="err" id="phoneErr"></small>
+              </label>
+              <label class="field">
+                <span>Nota para el barbero <em>(opcional)</em></span>
+                <input type="text" id="note" name="note" placeholder="Ej. traigo foto del corte">
+              </label>
+              <div class="panel-foot">
+                <button type="button" class="btn btn-line" data-prev="2">Atrás</button>
+                <button type="submit" class="btn btn-red" id="confirm">Confirmar cita</button>
+              </div>
+              <p class="form-error" id="formErr" role="alert"></p>
+            </fieldset>
+          </form>
+
+          <aside class="ticket" id="ticket" aria-live="polite">
+            <div class="ticket-head">
+              <img src="assets/logo.svg" alt="" width="40" height="32">
+              <p>El Rey del Bigote</p>
+            </div>
+            <dl class="ticket-rows">
+              <div><dt>Barbero</dt><dd id="tBarber">Por elegir</dd></div>
+              <div><dt>Servicio</dt><dd id="tService">Elige un servicio</dd></div>
+              <div><dt>Día</dt><dd id="tDay">Por elegir</dd></div>
+              <div><dt>Hora</dt><dd id="tTime">Por elegir</dd></div>
+              <div><dt>Duración</dt><dd id="tDur">-</dd></div>
+              <div class="t-promo" id="tPromoRow" hidden><dt>Promo del día</dt><dd id="tPromo"></dd></div>
+            </dl>
+            <div class="ticket-total"><span>Total</span><strong id="tTotal">$0</strong></div>
+            <p class="ticket-foot">Pagas en la barbería al terminar.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- Confirmación -->
+    <div class="done" id="done" hidden>
+      <div class="done-card" role="dialog" aria-modal="true" aria-labelledby="doneTitle" tabindex="-1">
+        <div class="done-stripes" aria-hidden="true"></div>
+        <img class="done-logo" src="assets/logo.svg" alt="" width="110" height="88">
+        <h2 id="doneTitle">¡Silla apartada!</h2>
+        <p id="doneText"></p>
+        <a class="btn btn-whats" id="doneWhats" href="#" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3a.5.5 0 0 0 0-.4l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .1-1.3c0-.1-.2-.2-.4-.3Z"/></svg>
+          Confirmar por WhatsApp
+        </a>
+        <button type="button" class="btn btn-line" id="doneClose">Listo</button>
+      </div>
+    </div>
+
+    <!-- Visítanos -->
+    <section class="visit" id="visitanos" aria-labelledby="visit-t">
+      <div class="wrap">
+        <h2 id="visit-t" class="h2">Visítanos</h2>
+        <p class="lead" id="addr"></p>
+        <ul class="week" id="hours" aria-label="Horario"></ul>
+        <div class="visit-cta">
+          <a class="btn btn-line" id="mapsLink" href="#" target="_blank" rel="noopener">Cómo llegar</a>
+          <a class="btn btn-line" id="whatsDirect" href="#" target="_blank" rel="noopener">Escríbenos por WhatsApp</a>
+        </div>
+        <div class="map"><iframe id="map" title="Mapa de la barbería" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="foot-stripes" aria-hidden="true"></div>
+    <div class="wrap foot-in">
+      <p class="foot-brand"><img src="assets/logo.svg" alt="" width="36" height="29">El Rey del Bigote</p>
+      <p>&copy; <span id="year"></span> El Rey del Bigote. Ciudad Hidalgo, Michoacán.</p>
+      <p class="credit">Sitio hecho por <strong>{SDS}</strong> Software Development Service</p>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
