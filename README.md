@@ -14,7 +14,7 @@ js/app.js             Lógica de la reserva
 js/admin.js           Lógica del panel
 css/admin.css         Estilos del panel
 assets/logo.svg       Logo (corona sobre bigote)
-assets/barberos/      Fotos de los barberos (lando.svg es un retrato ilustrado de ejemplo)
+assets/barberos/      Retratos (lando.jpg es el de ejemplo; lando.svg es una versión dibujada a mano)
 apps-script/          Código del backend en Google Sheets e instrucciones
 ```
 

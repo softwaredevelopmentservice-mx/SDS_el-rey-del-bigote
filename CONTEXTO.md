@@ -41,7 +41,7 @@ js/negocio.js         Encima la config que el barbero guardó (API) sobre config
 js/app.js             Lógica del sitio y de la reserva
 js/admin.js           Lógica del panel
 assets/logo.svg       Logo (corona roja + bigote blanco)
-assets/barberos/      Fotos de barberos (lando.svg es un retrato ilustrado de ejemplo)
+assets/barberos/      Retratos (lando.jpg es el de ejemplo, 800x800; lando.svg es una versión dibujada a mano)
 apps-script/Code.gs   Backend en Google Apps Script
 apps-script/appsscript.json
 apps-script/INSTRUCCIONES.md   Cómo instalar el backend paso a paso
@@ -60,6 +60,7 @@ Todo lo del negocio **arranca** aquí. Desde que existe la pantalla de ajustes d
 - `whatsapp`: `527861021588` (número de Cristian, solo para el demo).
 - `apiUrl`: URL `/exec` del Web App de Apps Script. **Vacía = modo demo** (las citas se guardan en `localStorage` y algunos horarios salen ocupados al azar). Hoy está apuntando al Web App real, así que correr en local escribe en la hoja de verdad.
 - `barberos[]`: id, nombre, rol, foto, frase, experiencia, especialidad, bio, favoritos, instagram, días que trabaja. Con 2 o más barberos, la reserva deja elegir con quién.
+  La `foto` debe ser **cuadrada**: el marco es redondo y recorta las esquinas. Deja aire arriba para que no se coma el sombrero o el pelo. La miniatura de 44px del paso 1 se acerca a la cara con `transform: scale()` en `.avatar img` (`css/styles.css`); si cambias el encuadre de la foto, ajusta ese valor.
 - `horario`: por día (0 = domingo). Arranque: L-S 10:00-20:00, D 10:00-15:00.
 - `intervalo` (30 min) y `diasReserva` (10). Estos dos **no** se editan desde el panel.
 - `servicios`: adulto $150/40 min, adolescente $120/30, niño $100/30, solo barba $80/20.
@@ -219,7 +220,7 @@ Si estas pruebas se van a repetir seguido, vale la pena meterlas al repo en una 
 Rama `feature/cambios`, salida de `main` en `ef16288`. Cambios hechos y **sin commitear**:
 
 1. Marco redondo para la foto del barbero, con la píldora de estado montada en el borde.
-2. Retrato ilustrado de Lando rehecho: lienzo cuadrado, sombrero de rancho y barba integrada con el bigote.
+2. Retrato de Lando: ahora es `lando.jpg` (ilustración plana generada, recortada a 800x800 para el marco). El dibujo a mano `lando.svg` se queda en el repo como alternativa.
 3. Loading con el logo girando, en el sitio y en el panel.
 4. La promoción y el precio se recalculan cuando una cita cambia de día (columna `Base`).
 5. Pantalla "Tu negocio" en el panel: precios, duraciones, extras, promociones y horarios.
