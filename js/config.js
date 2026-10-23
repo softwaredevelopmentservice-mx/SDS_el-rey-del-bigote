@@ -23,7 +23,7 @@ window.BARBERIA = {
       id: "lando",
       nombre: "Lando",
       rol: "Barbero y dueño",
-      // EJEMPLO: retrato ilustrado. Cambiar por foto real vertical 4:5, ej. "assets/barberos/lando.jpg".
+      // EJEMPLO: retrato ilustrado. Cambiar por foto real cuadrada 1:1 (el marco es redondo), ej. "assets/barberos/lando.jpg".
       foto: "assets/barberos/lando.svg",
       // Todos estos datos son EJEMPLO: confirmar con Lando.
       frase: "Aquí sales como rey o no sales.",

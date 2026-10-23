@@ -3,6 +3,7 @@
   "use strict";
 
   const C = window.BARBERIA;
+  const N = window.NEGOCIO;
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
   const DIAS = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
@@ -10,12 +11,14 @@
   const DEMO = !C.apiUrl;
   const DEMO_PIN = "1234";
   const DEMO_KEY = "rdb-admin-demo";
+  const DEMO_CFG = "rdb-admin-demo-config";
   const SESSION_KEY = "rdb-admin-pin";
   const VER_DIAS = 8;
 
   const state = { pin: "", citas: [], dia: null, showCancel: false, sheet: null, loading: false };
 
   /* ---------- utilidades ---------- */
+  const loading = (txt) => `<div class="loader" role="status"><span class="loader-pole" aria-hidden="true"><img src="assets/logo.svg" alt=""></span><span>${txt}</span></div>`;
   const toMin = (h) => { const [a, b] = h.split(":").map(Number); return a * 60 + b; };
   const toHHMM = (m) => String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
   const fmt12 = (h) => { let [a, b] = h.split(":").map(Number); const s = a >= 12 ? "pm" : "am"; a = a % 12 || 12; return `${a}:${String(b).padStart(2, "0")} ${s}`; };
@@ -59,13 +62,20 @@
     ];
     return rows.map((r, i) => {
       const fecha = iso(addDays(t, r[0]));
-      const promo = (C.promociones || []).find((p) => p.dia === fromIso(fecha).getDay());
-      const precio = promo && promo.porcentaje ? Math.round(r[4] * (1 - promo.porcentaje / 100)) : r[4];
+      const precio = N.precioConPromo(r[4], fecha);
       return {
-        id: "demo" + i, creada: "", fecha, hora: r[1], minutos: r[2], barbero: b, servicio: r[3], precio,
-        promo: promo ? (promo.regalo || `${promo.porcentaje}% de descuento`) : "", nombre: r[5], telefono: r[6], nota: r[7], estado: r[8],
+        id: "demo" + i, creada: "", fecha, hora: r[1], minutos: r[2], barbero: b, servicio: r[3], precio, base: r[4],
+        promo: N.textoPromo(fecha), nombre: r[5], telefono: r[6], nota: r[7], estado: r[8],
       };
     });
+  }
+
+  function demoConfig() {
+    try {
+      const guardada = JSON.parse(localStorage.getItem(DEMO_CFG) || "null");
+      if (guardada) return guardada;
+    } catch (e) { /* sin almacenamiento */ }
+    return N.instantanea();
   }
 
   function demoApi(op, p) {
@@ -84,8 +94,17 @@
         const ini = toMin(p.hora), fin = ini + c.minutos;
         if (busy(p.fecha, c.barbero, c.id).some((o) => ini < toMin(o.hora) + o.minutos && fin > toMin(o.hora))) return { ok: false, error: "ocupado" };
         c.nota = `Movida desde ${c.fecha} ${c.hora}` + (c.nota ? `. ${c.nota}` : "");
-        c.fecha = p.fecha; c.hora = p.hora; c.estado = "Confirmada"; demoSave();
+        c.fecha = p.fecha; c.hora = p.hora; c.estado = "Confirmada";
+        c.base = c.base || c.precio;
+        c.promo = N.textoPromo(p.fecha);
+        c.precio = N.precioConPromo(c.base, p.fecha);
+        demoSave();
         return { ok: true, cita: c };
+      }
+      case "config": return { ok: true, config: demoConfig() };
+      case "guardarConfig": {
+        try { localStorage.setItem(DEMO_CFG, JSON.stringify(p.config)); } catch (e) { /* sin almacenamiento */ }
+        return { ok: true, config: p.config };
       }
       default: return { ok: false, error: "datos" };
     }
@@ -141,6 +160,7 @@
     $("#today").textContent = hoy.charAt(0).toUpperCase() + hoy.slice(1);
     if (!state.dia) state.dia = iso(today());
     load();
+    cargarConfig().then((cambio) => { if (cambio && !$("#board").hidden) render(); });
   }
 
   function logout() {
@@ -158,7 +178,7 @@
     state.loading = true;
     const btn = $("#refresh");
     btn.classList.remove("spin"); void btn.offsetWidth; btn.classList.add("spin");
-    if (!quiet && !state.citas.length) $("#citas").innerHTML = '<li class="skeleton"></li><li class="skeleton"></li><li class="skeleton"></li>';
+    if (!quiet && !state.citas.length) $("#citas").innerHTML = `<li>${loading("Cargando tus citas…")}</li>`;
     try {
       const desde = iso(addDays(today(), -1));
       const hasta = iso(addDays(today(), VER_DIAS + 14));
@@ -322,6 +342,7 @@
       renderMoveDays();
       renderMoveSlots();
       updateMoveMsg();
+      updateMovePromo();
     }
     $("#sheet").hidden = false;
     document.body.style.overflow = "hidden";
@@ -352,7 +373,7 @@
       s.fecha = b.dataset.mday; s.hora = null;
       $$("[data-mday]").forEach((x) => x.setAttribute("aria-checked", String(x === b)));
       $("#sheetYes").disabled = true;
-      renderMoveSlots(); updateMoveMsg();
+      renderMoveSlots(); updateMoveMsg(); updateMovePromo();
     }));
   }
 
@@ -361,7 +382,7 @@
     const box = $("#moveSlots");
     const h = C.horario[fromIso(s.fecha).getDay()];
     if (!h) { box.innerHTML = '<p class="slots-empty">Ese día está cerrado.</p>'; return; }
-    box.innerHTML = '<p class="slots-empty">Revisando la agenda…</p>';
+    box.innerHTML = loading("Revisando la agenda…");
     const fecha = s.fecha;
     let r;
     try { r = await api("ocupados", { fecha, barbero: c.barbero, excepto: c.id }); } catch (e) { r = { ok: false }; }
@@ -387,10 +408,37 @@
     }));
   }
 
+  /** Lo que cambia por mudarse de día: la promo es la del día nuevo, y con ella el total. */
+  function cambioPorDia(c, fecha) {
+    const base = c.base || c.precio;
+    return { promo: N.textoPromo(fecha), precio: N.precioConPromo(base, fecha) };
+  }
+
+  function updateMovePromo() {
+    const s = state.sheet, c = s.cita;
+    const el = $("#movePromo");
+    if (!el) return;
+    if (s.fecha === c.fecha) { el.hidden = true; return; }
+    const n = cambioPorDia(c, s.fecha);
+    const promoTxt = n.promo ? `la promo es <b>${esc(n.promo)}</b>` : "<b>no hay promoción</b>";
+    const precioTxt = n.precio === c.precio
+      ? `El total sigue en ${money(c.precio)}.`
+      : `El total pasa de ${money(c.precio)} a <b>${money(n.precio)}</b>.`;
+    el.innerHTML = `Ese día ${promoTxt}. ${precioTxt}`;
+    el.hidden = false;
+  }
+
   function updateMoveMsg() {
     const s = state.sheet, c = s.cita;
     const cuando = s.hora ? `al ${dayLong(s.fecha)} a las ${fmt12(s.hora)}` : "al [elige día y hora]";
-    $("#msg").value = `Hola ${firstName(c.nombre)}, te escribe ${barberName(c.barbero)} de ${C.nombre}. Tuve que recorrer tu cita del ${dayLong(c.fecha)} a las ${fmt12(c.hora)} ${cuando}. Si no te queda, contéstame y lo arreglamos.`;
+    let txt = `Hola ${firstName(c.nombre)}, te escribe ${barberName(c.barbero)} de ${C.nombre}. Tuve que recorrer tu cita del ${dayLong(c.fecha)} a las ${fmt12(c.hora)} ${cuando}. Si no te queda, contéstame y lo arreglamos.`;
+    if (s.hora && s.fecha !== c.fecha) {
+      const n = cambioPorDia(c, s.fecha);
+      if (n.precio !== c.precio) txt += ` Ese día la promoción es otra, así que el total queda en ${money(n.precio)}.`;
+      else if (n.promo && n.promo !== c.promo) txt += ` Ese día te toca ${n.promo.toLowerCase()}.`;
+      else if (!n.promo && c.promo) txt += ` Eso sí, ese día no hay promoción.`;
+    }
+    $("#msg").value = txt;
   }
 
   async function confirmSheet() {
@@ -432,6 +480,193 @@
     }
   }
 
+  /* ---------- precios, promos y horarios ---------- */
+  const DIAS_ORDEN = [1, 2, 3, 4, 5, 6, 0];
+  const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1);
+
+  async function cargarConfig() {
+    try {
+      const r = await api("config");
+      if (!r.ok || !r.config) return false;
+      const cambio = N.aplicar(r.config);
+      N.guardarEnCache(r.config); // para que el sitio en este mismo navegador no muestre precios viejos
+      return cambio;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function openSettings() {
+    $("#board").hidden = true;
+    $("#settings").hidden = false;
+    $("#setErr").textContent = "";
+    $("#setBody").innerHTML = loading("Cargando precios y horarios…");
+    $("#setSync").textContent = "";
+    cargarConfig().then(() => {
+      renderSettings();
+      $("#setSync").textContent = DEMO ? "Modo demo: esto se guarda solo en este navegador." : "";
+    });
+    window.scrollTo(0, 0);
+  }
+
+  function closeSettings() {
+    $("#settings").hidden = true;
+    $("#board").hidden = false;
+    render();
+  }
+
+  function campoNum(etq, nombre, valor, attrs) {
+    return `<label class="set-f"><span>${etq}</span><input type="number" name="${nombre}" value="${valor}" ${attrs} inputmode="numeric"></label>`;
+  }
+
+  function renderSettings() {
+    const cfg = N.instantanea();
+    let h = "";
+
+    h += `<section class="set-card"><h2>Cortes</h2>
+      <p class="set-note">Lo que cobras y lo que te lleva cada uno. Los minutos deciden qué horarios puede apartar el cliente.</p>`;
+    Object.keys(cfg.servicios).forEach((id) => {
+      const sv = cfg.servicios[id];
+      h += `<div class="set-row"><b>${esc(sv.nombre)}</b>
+        ${campoNum("Precio", "serv-precio-" + id, sv.precio, 'min="0" max="99999" step="10"')}
+        ${campoNum("Minutos", "serv-min-" + id, sv.minutos, 'min="5" max="480" step="5"')}</div>`;
+    });
+    h += `</section>`;
+
+    h += `<section class="set-card"><h2>Estilos y extras</h2>
+      <p class="set-note">Lo que se le suma a un corte. Hoy solo cobras el degradado y la barba;
+      un estilo en 0 aparece como “Incluido” en el sitio, y si algún día quieres cobrarlo, le pones precio aquí.</p>`;
+    Object.keys(cfg.estilos).forEach((id) => {
+      const e = cfg.estilos[id];
+      h += `<div class="set-row"><b>${esc(e.nombre)}</b>
+        ${campoNum("Se suma", "est-precio-" + id, e.extra, 'min="0" max="99999" step="5"')}
+        ${campoNum("Minutos", "est-min-" + id, e.minutos, 'min="0" max="240" step="5"')}</div>`;
+    });
+    h += `<div class="set-row"><b>Barba con el corte</b>
+      ${campoNum("Se suma", "barba-precio", cfg.barbaExtra.precio, 'min="0" max="99999" step="5"')}
+      ${campoNum("Minutos", "barba-min", cfg.barbaExtra.minutos, 'min="0" max="240" step="5"')}</div></section>`;
+
+    h += `<section class="set-card"><h2>Promociones</h2>
+      <p class="set-note">Una por día, los siete. Si pones porcentaje, se descuenta del total; si no, es el regalo de la tiendita.
+      Apagada no se muestra ni se aplica. Para estrenar una en sábado o domingo, llena el día y préndelo.</p>`;
+    DIAS_ORDEN.forEach((d) => {
+      const p = cfg.promociones.filter((x) => x.dia === d)[0] || { dia: d, titulo: "", regalo: "", porcentaje: 0, detalle: "", activa: false };
+      h += `<div class="set-promo">
+        <div class="set-promo-h"><b>${cap(DIAS[d])}</b>
+          <label class="toggle"><input type="checkbox" name="promo-activa-${d}" ${p.activa === false ? "" : "checked"}><span class="toggle-ui" aria-hidden="true"></span>Activa</label>
+        </div>
+        <label class="set-f wide"><span>Título</span><input type="text" name="promo-titulo-${d}" value="${esc(p.titulo)}" maxlength="60"></label>
+        <label class="set-f wide"><span>Regalo</span><input type="text" name="promo-regalo-${d}" value="${esc(p.regalo)}" maxlength="60" placeholder="Vacío si es descuento"></label>
+        ${campoNum("Descuento %", "promo-pct-" + d, p.porcentaje, 'min="0" max="90" step="1"')}
+        <label class="set-f wide"><span>Detalle</span><input type="text" name="promo-detalle-${d}" value="${esc(p.detalle)}" maxlength="200"></label>
+      </div>`;
+    });
+    h += `</section>`;
+
+    h += `<section class="set-card"><h2>Horarios</h2><p class="set-note">A qué hora abres y cierras. Un día cerrado no aparece para reservar.</p>`;
+    DIAS_ORDEN.forEach((d) => {
+      const hh = cfg.horario[d];
+      h += `<div class="set-row set-dia">
+        <b>${cap(DIAS[d])}</b>
+        <label class="set-f"><span>Abre</span><input type="time" name="h-abre-${d}" value="${hh ? hh.abre : "10:00"}" ${hh ? "" : "disabled"}></label>
+        <label class="set-f"><span>Cierra</span><input type="time" name="h-cierra-${d}" value="${hh ? hh.cierra : "20:00"}" ${hh ? "" : "disabled"}></label>
+        <label class="toggle"><input type="checkbox" name="h-cerrado-${d}" data-dia="${d}" ${hh ? "" : "checked"}><span class="toggle-ui" aria-hidden="true"></span>Cerrado</label>
+      </div>`;
+    });
+    h += `</section>`;
+
+    $("#setBody").innerHTML = h;
+    $$('[name^="h-cerrado-"]').forEach((ch) => ch.addEventListener("change", () => {
+      const d = ch.dataset.dia;
+      $(`[name="h-abre-${d}"]`).disabled = ch.checked;
+      $(`[name="h-cierra-${d}"]`).disabled = ch.checked;
+    }));
+  }
+
+  /** Arma la config desde el formulario. Devuelve el primer problema que encuentre. */
+  function leerSettings() {
+    const cfg = N.instantanea();
+    const caja = $("#setBody");
+    const val = (n) => { const el = $(`[name="${n}"]`, caja); return el ? el.value : ""; };
+    const chk = (n) => { const el = $(`[name="${n}"]`, caja); return !!(el && el.checked); };
+    const ent = (v) => { const n = Math.round(Number(v)); return isFinite(n) ? n : null; };
+    let error = "";
+    const falla = (msg) => { if (!error) error = msg; };
+
+    Object.keys(cfg.servicios).forEach((id) => {
+      const sv = cfg.servicios[id];
+      const precio = ent(val("serv-precio-" + id)), minutos = ent(val("serv-min-" + id));
+      if (precio === null || precio < 0 || precio > 99999) falla(`Revisa el precio de ${sv.nombre}.`);
+      if (minutos === null || minutos < 5 || minutos > 480) falla(`Los minutos de ${sv.nombre} van de 5 a 480.`);
+      sv.precio = precio; sv.minutos = minutos;
+    });
+    Object.keys(cfg.estilos).forEach((id) => {
+      const e = cfg.estilos[id];
+      const extra = ent(val("est-precio-" + id)), minutos = ent(val("est-min-" + id));
+      if (extra === null || extra < 0 || extra > 99999) falla(`Revisa lo que se suma por ${e.nombre}.`);
+      if (minutos === null || minutos < 0 || minutos > 240) falla(`Los minutos de ${e.nombre} van de 0 a 240.`);
+      e.extra = extra; e.minutos = minutos;
+    });
+    const bp = ent(val("barba-precio")), bm = ent(val("barba-min"));
+    if (bp === null || bp < 0 || bp > 99999) falla("Revisa lo que se suma por la barba.");
+    if (bm === null || bm < 0 || bm > 240) falla("Los minutos de la barba van de 0 a 240.");
+    cfg.barbaExtra = { precio: bp, minutos: bm };
+
+    const promos = [];
+    DIAS_ORDEN.forEach((d) => {
+      if (!$(`[name="promo-titulo-${d}"]`, caja)) return;
+      const titulo = val("promo-titulo-" + d).trim();
+      const regalo = val("promo-regalo-" + d).trim();
+      const detalle = val("promo-detalle-" + d).trim();
+      const pct = ent(val("promo-pct-" + d)) || 0;
+      const activa = chk("promo-activa-" + d);
+      // Día en blanco y apagado: ese día simplemente no tiene promoción.
+      if (!activa && !titulo && !regalo && !detalle && !pct) return;
+      if (pct < 0 || pct > 90) falla(`El descuento del ${DIAS[d]} va de 0 a 90.`);
+      if (activa && !titulo) falla(`Ponle título a la promo del ${DIAS[d]} o apágala.`);
+      if (activa && !pct && !regalo) falla(`La promo del ${DIAS[d]} necesita un regalo o un porcentaje.`);
+      promos.push({ dia: d, titulo: titulo, regalo: regalo, porcentaje: pct, detalle: detalle, activa: activa });
+    });
+    cfg.promociones = promos;
+
+    const horario = {};
+    let abiertos = 0;
+    DIAS_ORDEN.forEach((d) => {
+      if (chk("h-cerrado-" + d)) return;
+      const abre = val("h-abre-" + d), cierra = val("h-cierra-" + d);
+      if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(abre) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(cierra)) { falla(`Revisa el horario del ${DIAS[d]}.`); return; }
+      if (toMin(abre) >= toMin(cierra)) { falla(`El ${DIAS[d]} cierras antes de abrir.`); return; }
+      horario[d] = { abre: abre, cierra: cierra };
+      abiertos++;
+    });
+    if (!abiertos) falla("Deja abierto al menos un día.");
+    cfg.horario = horario;
+
+    return { cfg: cfg, error: error };
+  }
+
+  async function guardarSettings() {
+    const btn = $("#setSave");
+    $("#setErr").textContent = "";
+    const r = leerSettings();
+    if (r.error) { $("#setErr").textContent = r.error; return; }
+    btn.disabled = true; btn.textContent = "Guardando…";
+    try {
+      const res = await api("guardarConfig", { config: r.cfg });
+      if (!res.ok) throw new Error(res.error);
+      N.aplicar(res.config);
+      N.guardarEnCache(res.config);
+      renderSettings();
+      $("#setSync").textContent = DEMO
+        ? "Guardado en este navegador."
+        : "Guardado. El sitio lo toma en unos minutos.";
+    } catch (e) {
+      $("#setErr").textContent = errText(e.message);
+    } finally {
+      btn.disabled = false; btn.textContent = "Guardar cambios";
+    }
+  }
+
   /* ---------- eventos ---------- */
   function bind() {
     $("#loginForm").addEventListener("submit", (e) => {
@@ -443,6 +678,9 @@
     $("#pin").addEventListener("input", (e) => { e.target.value = e.target.value.replace(/\D/g, ""); });
     $("#logout").addEventListener("click", logout);
     $("#refresh").addEventListener("click", () => load(true));
+    $("#toSettings").addEventListener("click", openSettings);
+    $("#backToBoard").addEventListener("click", closeSettings);
+    $("#setSave").addEventListener("click", guardarSettings);
     $("#showCancel").addEventListener("change", (e) => { state.showCancel = e.target.checked; render(); });
     $("#citas").addEventListener("click", (e) => {
       const btn = e.target.closest("[data-act]");
@@ -464,8 +702,9 @@
     $("#msg").addEventListener("focus", () => { $("#msg").readOnly = false; });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeSheet(); });
     // actualizar solo cada minuto si la pestaña está visible y no hay nada abierto
-    setInterval(() => { if (state.pin && document.visibilityState === "visible" && !state.sheet) load(true); }, 60000);
-    document.addEventListener("visibilitychange", () => { if (state.pin && document.visibilityState === "visible" && !state.sheet) load(true); });
+    const puedeRefrescar = () => state.pin && document.visibilityState === "visible" && !state.sheet && $("#settings").hidden;
+    setInterval(() => { if (puedeRefrescar()) load(true); }, 60000);
+    document.addEventListener("visibilitychange", () => { if (puedeRefrescar()) load(true); });
   }
 
   /* ---------- inicio ---------- */

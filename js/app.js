@@ -3,6 +3,7 @@
   "use strict";
 
   const C = window.BARBERIA;
+  const N = window.NEGOCIO;
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
   const STORE_KEY = "rdb-citas-demo";
@@ -31,7 +32,7 @@
   }
 
   /* ---------- promociones ---------- */
-  const promoFor = (date) => (date ? (C.promociones || []).find((p) => p.dia === date.getDay()) : null);
+  const promoFor = (date) => N.promo(date);
 
   const PROMO_ICONS = {
     1: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8h16a4 4 0 0 1 4 4v18a4 4 0 0 1-4 4H16a4 4 0 0 1-4-4V12a4 4 0 0 1 4-4Z"/><path d="M24 34v8"/><path d="M12 20l24-6"/></svg>',
@@ -39,16 +40,18 @@
     3: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14h20l-3 28H17Z"/><path d="M26 14l4-10 6 2"/><path d="M15 24h18"/></svg>',
     4: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M36 12 12 36"/><circle cx="15" cy="15" r="5"/><circle cx="33" cy="33" r="5"/></svg>',
     5: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6h20l-2 6 2 6-2 6 2 6-2 6 2 6H14l2-6-2-6 2-6-2-6 2-6Z"/><path d="M20 20h8M20 28h8"/></svg>',
+    // Para un día al que el barbero le ponga promo desde el panel y no tenga dibujo propio.
+    regalo: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 20h32v20a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2Z"/><path d="M6 14h36v6H6Z"/><path d="M24 14v28"/><path d="M24 14c-6 0-10-2-10-5s4-3 6-1 4 6 4 6Zm0 0c6 0 10-2 10-5s-4-3-6-1-4 6-4 6Z"/></svg>',
   };
 
   function renderPromos() {
     const list = $("#promoList");
     const hoy = new Date().getDay();
-    list.innerHTML = (C.promociones || []).map((p, i) => `
+    list.innerHTML = (C.promociones || []).filter((p) => p.activa !== false).map((p, i) => `
       <li class="promo${p.dia === hoy ? " is-today" : ""}" data-reveal style="--i:${i}">
         <span class="promo-day">${DIAS_CORTO[p.dia]}</span>
         ${p.dia === hoy ? '<span class="promo-tag">Hoy</span>' : ""}
-        <span class="promo-icon" aria-hidden="true">${PROMO_ICONS[p.dia] || ""}</span>
+        <span class="promo-icon" aria-hidden="true">${PROMO_ICONS[p.dia] || PROMO_ICONS.regalo}</span>
         <h3 class="promo-title">${esc(p.titulo)}</h3>
         <p class="promo-text"><span class="visually-hidden">${DIAS[p.dia]}: </span>${esc(p.detalle)}</p>
       </li>`).join("");
@@ -68,11 +71,8 @@
     if (state.beard && s.barba) { precio += C.barbaExtra.precio; minutos += C.barbaExtra.minutos; texto += " + barba"; }
     const base = precio;
     const promo = promoFor(state.date);
-    let promoTexto = "";
-    if (promo) {
-      if (promo.porcentaje) { precio = Math.round(base * (1 - promo.porcentaje / 100)); promoTexto = `${promo.porcentaje}% de descuento`; }
-      else if (promo.regalo) promoTexto = promo.regalo;
-    }
+    const promoTexto = N.textoPromo(state.date);
+    precio = N.precioConPromo(base, state.date);
     return { base, precio, minutos, texto, promo, promoTexto };
   }
 
@@ -106,6 +106,7 @@
   /* ---------- barberos ---------- */
   const barberById = (id) => C.barberos.find((b) => b.id === id);
   const worksOn = (b, d) => b.dias.includes(d.getDay()) && !!C.horario[d.getDay()];
+  const loading = (txt) => `<div class="loader" role="status"><span class="loader-pole" aria-hidden="true"><img src="assets/logo.svg" alt=""></span><span>${txt}</span></div>`;
   const avatar = (b) => `<span class="avatar">${b.foto ? `<img src="${esc(b.foto)}" alt="">` : `<b>${esc(b.nombre[0])}</b>`}</span>`;
 
   function daysText(dias) {
@@ -121,11 +122,13 @@
       const hoy = worksOn(b, now);
       return `
       <article class="barber">
-        <div class="portrait" data-reveal>
-          <div class="portrait-in">
-            ${b.foto
-              ? `<img src="${esc(b.foto)}" alt="Foto de ${esc(b.nombre)}" loading="lazy">`
-              : `<div class="portrait-empty"><img src="${esc(logo)}" alt=""><b>${esc(b.nombre)}</b><small>Foto próximamente</small></div>`}
+        <div class="portrait-box" data-reveal>
+          <div class="portrait">
+            <div class="portrait-in">
+              ${b.foto
+                ? `<img src="${esc(b.foto)}" alt="Foto de ${esc(b.nombre)}" loading="lazy">`
+                : `<div class="portrait-empty"><img src="${esc(logo)}" alt=""><b>${esc(b.nombre)}</b><small>Foto próximamente</small></div>`}
+            </div>
           </div>
           <span class="portrait-tag${hoy ? "" : " off"}">${hoy ? "Atiende hoy" : "Descansa hoy"}</span>
         </div>
@@ -266,7 +269,7 @@
     const q = quote();
     const dur = q ? q.minutos : C.intervalo;
     const h = C.horario[state.date.getDay()];
-    box.innerHTML = `<p class="slots-empty">Revisando la agenda…</p>`;
+    box.innerHTML = loading("Revisando la agenda…");
     const busy = await getBusy(state.barber, state.date);
     if (!busy) { box.innerHTML = `<p class="slots-empty">No pudimos revisar la agenda. Revisa tu conexión y vuelve a elegir el día.</p>`; return; }
     const now = new Date();
@@ -347,7 +350,7 @@
       id: Date.now().toString(36), creada: new Date().toISOString(),
       barbero: b.id, barberoNombre: b.nombre,
       fecha: isoDate(state.date), hora: state.time, minutos: q.minutos,
-      servicio: q.texto, precio: q.precio, promo: q.promoTexto || "",
+      servicio: q.texto, precio: q.precio, base: q.base, promo: q.promoTexto || "",
       nombre: $("#name").value.trim(), telefono: cleanPhone($("#phone").value), nota: $("#note").value.trim(),
     };
     const btn = $("#confirm");
@@ -418,6 +421,30 @@
   }
 
   /* ---------- portada, horario y mapa ---------- */
+  function renderPrices() {
+    const list = $("#priceList");
+    if (!list) return;
+    let i = 0, html = "";
+    Object.keys(C.servicios).forEach((id) => {
+      const s = C.servicios[id];
+      html += `<div data-reveal style="--i:${i++}"><dt>${esc(s.nombre)}<small>${fmtDur(s.minutos)}</small></dt><dd>${money(s.precio)}</dd></div>`;
+    });
+    Object.keys(C.estilos).forEach((id) => {
+      const e = C.estilos[id];
+      if (!e.extra) return;
+      html += `<div data-reveal style="--i:${i++}"><dt>${esc(e.nombre)}<small>A cualquier corte</small></dt><dd>+${money(e.extra)}</dd></div>`;
+    });
+    list.innerHTML = html;
+
+    const adulto = C.servicios.adulto;
+    if (adulto && C.barbaExtra) {
+      const total = adulto.precio + C.barbaExtra.precio;
+      const mins = adulto.minutos + C.barbaExtra.minutos;
+      $("#comboPrice").innerHTML = `<span>$</span>${total.toLocaleString("es-MX")}`;
+      $("#comboNote").textContent = `El favorito de la casa. ${mins === 60 ? "Una hora" : fmtDur(mins)} en la silla.`;
+    }
+  }
+
   function renderStatus() {
     const now = new Date();
     const h = C.horario[now.getDay()];
@@ -453,13 +480,22 @@
   }
 
   /* ---------- aparición al hacer scroll ---------- */
+  let io = null;
+  function observar(cont) {
+    if (!document.documentElement.classList.contains("reveal-on")) return;
+    $$("[data-reveal]", cont).forEach((el) => {
+      if (!io || el.getBoundingClientRect().top < window.innerHeight) el.classList.add("in");
+      else io.observe(el);
+    });
+  }
+
   function setupReveal() {
     $$(".promos .h2, .promos .lead, .prices-feature, .price-list div, .crew .h2, .booking .h2, .booking .lead, .visit .h2").forEach((el, i) => {
       if (!el.hasAttribute("data-reveal")) { el.setAttribute("data-reveal", ""); if (el.matches(".price-list div")) el.style.setProperty("--i", i % 6); }
     });
     if (reduced || !("IntersectionObserver" in window)) return;
     document.documentElement.classList.add("reveal-on");
-    const io = new IntersectionObserver((entries) => {
+    io = new IntersectionObserver((entries) => {
       entries.forEach((en) => { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } });
     }, { threshold: 0.15, rootMargin: "0px 0px -40px 0px" });
     $$("[data-reveal]").forEach((el) => {
@@ -496,14 +532,31 @@
   }
 
   /* ---------- inicio ---------- */
+  /* Pinta de inmediato con js/config.js y lo último que vio este navegador; si el barbero
+     cambió algo desde el panel, la API lo corrige en cuanto responde. */
+  N.aplicarCache();
   renderStatus();
   renderPromos();
+  renderPrices();
   renderVisit();
   renderCrew();
   renderBarberPick();
   renderWho();
   bind();
   updateTicket();
+
+  // Repinta solo si lo que guardó el barbero es distinto de lo que ya estaba en pantalla.
+  N.traer().then((cambio) => {
+    if (!cambio) return;
+    renderStatus();
+    renderPromos();
+    renderPrices();
+    renderVisit();
+    renderWho();
+    if (state.date) { renderDays(); renderPromoHint(); renderSlots(); }
+    updateTicket();
+    ["#promoList", "#priceList", "#hours"].forEach((sel) => observar($(sel)));
+  });
   setupReveal();
   setInterval(renderStatus, 60000);
 })();

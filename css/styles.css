@@ -148,7 +148,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 
 /* ---------- Promociones ---------- */
 .promos { padding-block: clamp(72px, 10vw, 128px) clamp(48px, 7vw, 88px); }
-.promo-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+/* auto-fit: aguanta las 5 de siempre o las 7 si el barbero pone promo en fin de semana */
+.promo-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: 12px; }
 .promo { position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 10px; min-height: 300px; padding: 22px 20px; border-radius: var(--r); background: var(--ink-3); border: 1px solid var(--line); transition: transform .45s var(--ease), border-color .3s, opacity .8s var(--ease); }
 .promo:hover { transform: translateY(-6px) rotate(-.6deg); border-color: rgba(244,242,238,.35); }
 .promo-day { font-family: var(--f-display); font-weight: 900; text-transform: uppercase; font-size: 3.6rem; line-height: .85; color: rgba(244,242,238,.18); transition: color .3s; }
@@ -191,16 +192,18 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .crew-list { display: grid; gap: 48px; margin-top: 28px; }
 .barber { display: grid; grid-template-columns: 1fr; gap: clamp(28px, 5vw, 64px); align-items: center; }
 @media (min-width: 820px) { .barber { grid-template-columns: minmax(260px, 400px) minmax(0, 1fr); } }
-.portrait { position: relative; width: min(400px, 100%); max-width: 100%; aspect-ratio: 4 / 5; margin: 0 auto; padding: 10px; border-radius: var(--r); overflow: hidden; }
+.portrait-box { position: relative; width: min(400px, 100%); max-width: 100%; margin: 0 auto 18px; }
+.portrait { position: relative; aspect-ratio: 1 / 1; padding: 10px; border-radius: 50%; overflow: hidden; }
 .portrait::before { content: ""; position: absolute; inset: -50%; background: var(--stripes); animation: frame 18s linear infinite; }
 @keyframes frame { to { transform: rotate(360deg); } }
-.portrait-in { position: relative; height: 100%; border-radius: 3px; overflow: hidden; background: var(--ink); }
+.portrait-in { position: relative; height: 100%; border-radius: 50%; overflow: hidden; background: var(--ink); }
 .portrait-in img { width: 100%; height: 100%; object-fit: cover; }
-.portrait-empty { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; background: radial-gradient(120% 80% at 50% 0%, #232834, var(--ink) 70%); }
-.portrait-empty img { width: 46%; height: auto; margin-bottom: 14px; opacity: .95; }
-.portrait-empty b { display: block; font-family: var(--f-display); font-weight: 900; text-transform: uppercase; font-size: 2.2rem; line-height: 1; }
+.portrait-empty { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 14%; background: radial-gradient(120% 80% at 50% 0%, #232834, var(--ink) 70%); }
+.portrait-empty img { width: 40%; height: auto; margin-bottom: 12px; opacity: .95; }
+.portrait-empty b { display: block; font-family: var(--f-display); font-weight: 900; text-transform: uppercase; font-size: 2rem; line-height: 1; }
 .portrait-empty small { display: block; margin-top: 8px; color: var(--mute); font-size: .875rem; }
-.portrait-tag { position: absolute; left: 22px; bottom: 22px; padding: 6px 12px; border-radius: 999px; background: var(--ink); color: var(--white); font-weight: 700; font-size: .8125rem; display: flex; align-items: center; gap: 8px; }
+/* la píldora vive fuera del círculo para que nunca la recorte ni parta el texto */
+.portrait-tag { position: absolute; left: 50%; bottom: -14px; transform: translateX(-50%); padding: 7px 14px; border-radius: 999px; background: var(--ink); border: 1.5px solid var(--line); color: var(--white); font-weight: 700; font-size: .8125rem; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
 .portrait-tag::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #45c27a; }
 .portrait-tag.off::before { background: var(--mute); }
 .barber-name { margin: 0; font-family: var(--f-display); font-weight: 900; text-transform: uppercase; font-size: clamp(5rem, 16vw, 10rem); line-height: .8; }
@@ -270,7 +273,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .barber-pick { display: flex; flex-wrap: wrap; gap: 10px; }
 .barber-chip { display: flex; align-items: center; gap: 12px; text-align: left; padding: 8px 18px 8px 8px; border-radius: 999px; background: var(--ink-3); border: 1.5px solid var(--line); cursor: pointer; }
 .avatar { width: 44px; height: 44px; border-radius: 50%; overflow: hidden; flex: none; display: grid; place-items: center; background: var(--stripes); }
-.avatar img { width: 100%; height: 100%; object-fit: cover; }
+/* el retrato es de cuerpo: se acerca a la cara para la miniatura */
+.avatar img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.6); transform-origin: 50% 35%; }
 .avatar b { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--ink); font-family: var(--f-display); font-weight: 900; font-size: 1.3rem; }
 .barber-chip strong { display: block; line-height: 1.2; }
 .barber-chip small { color: var(--mute); font-size: .8125rem; }
@@ -301,6 +305,16 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .slot[aria-checked="true"] { background: var(--blue); border-color: var(--blue); transform: scale(1.06); }
 .slot[disabled] { cursor: not-allowed; color: rgba(244,242,238,.28); border-color: rgba(244,242,238,.08); text-decoration: line-through; text-decoration-color: var(--red); text-decoration-thickness: 2px; }
 .slots-empty { grid-column: 1 / -1; color: var(--mute); margin: 6px 0; }
+
+/* ---------- Cargando ---------- */
+/* El poste girando con el logo al centro: mismo lenguaje que el marco del barbero. */
+.loader { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 30px 12px; color: var(--mute); font-weight: 600; text-align: center; }
+.loader-pole { position: relative; width: 58px; height: 58px; border-radius: 50%; overflow: hidden; flex: none; }
+.loader-pole::before { content: ""; position: absolute; inset: -50%; background: var(--stripes); background-size: 42px 42px; animation: frame 1.3s linear infinite; }
+.loader-pole::after { content: ""; position: absolute; inset: 5px; border-radius: 50%; background: var(--ink); }
+.loader-pole img { position: absolute; inset: 0; z-index: 1; width: 30px; height: 24px; margin: auto; animation: beat 1.3s var(--ease) infinite; }
+@keyframes beat { 0%, 100% { transform: scale(.88); opacity: .7; } 50% { transform: scale(1); opacity: 1; } }
+.loader-row { flex-direction: row; gap: 14px; text-align: left; }
 .legend-row { display: flex; align-items: center; gap: 8px; color: var(--mute); font-size: .8125rem; margin: 14px 0 0; }
 .key { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
 .key-free { border: 1.5px solid rgba(244,242,238,.5); }

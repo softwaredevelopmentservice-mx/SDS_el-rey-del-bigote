@@ -84,12 +84,13 @@
           <h2 id="precios-t" class="h2">Precios</h2>
           <div class="combo">
             <p class="combo-name">Corte y barba</p>
-            <p class="combo-price"><span>$</span>200</p>
-            <p class="combo-note">El favorito de la casa. Una hora en la silla.</p>
+            <p class="combo-price" id="comboPrice"><span>$</span>200</p>
+            <p class="combo-note" id="comboNote">El favorito de la casa. Una hora en la silla.</p>
             <a class="btn btn-white" href="#reserva" data-quick="combo">Reservar este</a>
           </div>
         </div>
-        <dl class="price-list">
+        <!-- Se vuelve a pintar desde la configuración; esto es lo que se ve si falla el JS. -->
+        <dl class="price-list" id="priceList">
           <div><dt>Corte de adulto<small>40 min</small></dt><dd>$150</dd></div>
           <div><dt>Corte de adolescente<small>30 min</small></dt><dd>$120</dd></div>
           <div><dt>Corte de niño<small>30 min</small></dt><dd>$100</dd></div>
@@ -241,6 +242,7 @@
   </footer>
 
   <script src="js/config.js"></script>
+  <script src="js/negocio.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

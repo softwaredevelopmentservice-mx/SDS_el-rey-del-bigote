@@ -88,8 +88,6 @@
 
 .empty { padding: 36px 20px; border-radius: var(--r); border: 1.5px dashed var(--line); text-align: center; color: var(--mute); }
 .empty b { display: block; font-family: var(--f-display); font-weight: 900; text-transform: uppercase; font-size: 1.8rem; color: var(--white); margin-bottom: 4px; }
-.skeleton { height: 112px; border-radius: var(--r); background: linear-gradient(90deg, var(--ink-3) 0%, #262a33 50%, var(--ink-3) 100%); background-size: 200% 100%; animation: shimmer 1.2s linear infinite; }
-@keyframes shimmer { to { background-position: -200% 0; } }
 
 /* ---------- Hoja de acciones ---------- */
 .sheet { position: fixed; inset: 0; z-index: 90; display: grid; align-items: end; justify-items: center; background: rgba(8,9,11,.78); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); animation: fade .25s both; }
@@ -116,3 +114,29 @@
 .toast { position: fixed; left: 50%; top: calc(76px + env(safe-area-inset-top, 0px)); transform: translateX(-50%); z-index: 95; padding: 12px 18px; border-radius: 999px; background: var(--white); color: var(--ink); font-weight: 700; box-shadow: 0 20px 40px -12px rgba(0,0,0,.7); animation: toastIn .35s var(--ease) both; max-width: calc(100% - 32px); }
 @keyframes toastIn { from { opacity: 0; transform: translate(-50%, -16px); } }
 .toast.err { background: var(--red); color: #fff; }
+
+/* ---------- Precios, promos y horarios ---------- */
+.settings { padding-bottom: 120px; }
+.set-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+.set-card { margin-top: 22px; padding: 20px; border-radius: var(--r); background: var(--ink-2); border: 1px solid var(--line); }
+.set-card h2 { margin: 0; font-family: var(--f-display); font-weight: 900; text-transform: uppercase; font-size: 1.8rem; line-height: 1; }
+.set-note { margin: 8px 0 16px; color: var(--mute); font-size: .9375rem; max-width: 60ch; }
+.set-row { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 12px 16px; padding: 14px 0; border-top: 1px solid var(--line); }
+.set-row > b { flex: 1 1 180px; min-width: 140px; padding-bottom: 12px; }
+.set-f { display: flex; flex-direction: column; gap: 6px; }
+.set-f > span { color: var(--mute); font-size: .8125rem; font-weight: 600; }
+.set-f input { width: 120px; min-height: 46px; padding: 0 12px; border-radius: var(--r); background: var(--ink-3); border: 1.5px solid var(--line); color: var(--white); font-size: 1.0625rem; font-weight: 600; transition: border-color .2s, box-shadow .2s; }
+.set-f input:focus { outline: none; border-color: var(--blue-l); box-shadow: 0 0 0 4px rgba(42,86,198,.28); }
+.set-f input:disabled { opacity: .4; }
+.set-f.wide { flex: 1 1 240px; }
+.set-f.wide input { width: 100%; }
+.set-dia .toggle { padding-bottom: 12px; }
+.set-promo { padding: 16px 0; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: flex-end; }
+.set-promo-h { flex: 1 1 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.set-promo-h b { font-family: var(--f-display); font-weight: 800; text-transform: uppercase; font-size: 1.3rem; }
+.set-foot { position: sticky; bottom: 0; margin-top: 24px; padding: 16px 0; background: linear-gradient(180deg, transparent, var(--ink) 30%); display: flex; align-items: center; justify-content: flex-end; gap: 16px; flex-wrap: wrap; }
+.set-foot .err { margin: 0; flex: 1 1 200px; }
+
+/* aviso de que la promo cambia al recorrer de día */
+.move-promo { margin: 14px 0 0; padding: 12px 14px; border-radius: var(--r); background: rgba(42,86,198,.14); border: 1.5px solid var(--blue); color: var(--white); font-size: .9375rem; }
+.move-promo b { font-weight: 700; }
