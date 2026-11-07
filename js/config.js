@@ -77,4 +77,28 @@ window.BARBERIA = {
     { dia: 4, titulo: "10% de descuento", porcentaje: 10, detalle: "En cualquier servicio. Si reservas en línea ya te sale descontado." },
     { dia: 5, titulo: "Papitas o dulce", regalo: "Papitas o dulce de regalo", detalle: "Lo que quieras de la tiendita para arrancar el fin de semana." },
   ],
+
+  // Tienda: productos con los que arranca la hoja "Productos" (y el modo demo).
+  // Ya conectada la hoja, el barbero los maneja desde el panel y esto solo sirve si no hay internet.
+  // Reales (fotos de la barbería): la pomada Rey del Bigote y la Fussion Blue. Sus precios y piezas son EJEMPLO.
+  // Cera, aceite, bálsamo y peine son productos de muestra para enseñar cada tipo de promo: quitarlos antes de publicar.
+  // Ver js/tienda.js para los tipos de promo.
+  productos: [
+    { id: "pomada-formal", nombre: "Pomada formal Rey del Bigote", categoria: "Cabello", precio: 180, stock: 12, orden: 1,
+      descripcion: "La de la casa. Fijación fuerte y acabado semi mate, hecha en México.",
+      foto: "assets/productos-pomada.jpg", promo: { tipo: "combo", valor: 150 } },
+    { id: "fussion-blue", nombre: "Pomada Fussion Blue", categoria: "Cabello", precio: 170, stock: 10, orden: 2,
+      descripcion: "Base agua, fijación firme extrema. Se lava fácil y no deja el pelo duro. 150 g.",
+      foto: "assets/productos-fussion-blue.jpg", promo: { tipo: "" } },
+    { id: "cera-mate", nombre: "Cera mate", categoria: "Cabello", precio: 160, stock: 8, orden: 3,
+      descripcion: "Textura sin brillo para peinados despeinados que aguantan todo el día.",
+      foto: "", promo: { tipo: "porcentaje", valor: 15 } },
+    { id: "aceite-barba", nombre: "Aceite para barba", categoria: "Barba", precio: 220, stock: 6, orden: 4,
+      descripcion: "Suaviza, quita la comezón y deja la barba con olor a madera.",
+      foto: "", promo: { tipo: "oferta", valor: 190 } },
+    { id: "balsamo-barba", nombre: "Bálsamo para barba", categoria: "Barba", precio: 200, stock: 0, orden: 5,
+      descripcion: "Peina y fija la barba sin dejarla tiesa.", foto: "", promo: { tipo: "" } },
+    { id: "peine-madera", nombre: "Peine de madera", categoria: "Accesorios", precio: 90, stock: 15, orden: 6,
+      descripcion: "Para barba y bigote. No genera estática.", foto: "", promo: { tipo: "cantidad", lleva: 2, paga: 1 } },
+  ],
 };

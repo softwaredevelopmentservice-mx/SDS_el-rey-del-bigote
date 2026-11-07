@@ -4,6 +4,7 @@
 
   const C = window.BARBERIA;
   const N = window.NEGOCIO;
+  const T = window.TIENDA;
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
   const DIAS = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
@@ -106,6 +107,13 @@
         try { localStorage.setItem(DEMO_CFG, JSON.stringify(p.config)); } catch (e) { /* sin almacenamiento */ }
         return { ok: true, config: p.config };
       }
+      // Tienda: misma lógica que Code.gs, guardada en este navegador (js/tienda.js)
+      case "productos": return { ok: true, productos: T.demo.productos() };
+      case "guardarProducto": return T.demo.guardarProducto(p.producto);
+      case "borrarProducto": return T.demo.borrarProducto(p.id);
+      case "subirFoto": return { ok: true, foto: "data:" + p.tipo + ";base64," + p.datos };
+      case "pedidos": return { ok: true, pedidos: T.demo.pedidos() };
+      case "estadoPedido": return T.demo.estadoPedido(p.id, p.estado);
       default: return { ok: false, error: "datos" };
     }
   }
@@ -124,6 +132,8 @@
     ocupado: "Ese horario ya está ocupado. Elige otro.",
     "no-existe": "Esa cita ya no existe en la hoja. Actualiza la lista.",
     datos: "Faltan datos para hacer el cambio.",
+    agotado: "Ya no alcanzan las piezas para eso.",
+    grande: "La foto pesa demasiado. Prueba con otra.",
   };
   const errText = (e) => ERRORES[e] || "No se pudo conectar con la hoja. Revisa tu internet e inténtalo otra vez.";
 
@@ -161,11 +171,13 @@
     if (!state.dia) state.dia = iso(today());
     load();
     cargarConfig().then((cambio) => { if (cambio && !$("#board").hidden) render(); });
+    if (window.ADMIN_TIENDA) window.ADMIN_TIENDA.alEntrar();
   }
 
   function logout() {
     store.del(SESSION_KEY);
     state.pin = ""; state.citas = [];
+    if (window.ADMIN_TIENDA) window.ADMIN_TIENDA.alSalir();
     $("#app").hidden = true;
     $("#login").hidden = false;
     $("#pin").value = "";
@@ -496,9 +508,14 @@
     }
   }
 
+  /** Solo una vista a la vez: citas, tu negocio o tienda. */
+  function vista(id) {
+    ["board", "settings", "shop"].forEach((v) => { const el = $("#" + v); if (el) el.hidden = v !== id; });
+    window.scrollTo(0, 0);
+  }
+
   function openSettings() {
-    $("#board").hidden = true;
-    $("#settings").hidden = false;
+    vista("settings");
     $("#setErr").textContent = "";
     $("#setBody").innerHTML = loading("Cargando precios y horarios…");
     $("#setSync").textContent = "";
@@ -510,8 +527,7 @@
   }
 
   function closeSettings() {
-    $("#settings").hidden = true;
-    $("#board").hidden = false;
+    vista("board");
     render();
   }
 
@@ -702,10 +718,14 @@
     $("#msg").addEventListener("focus", () => { $("#msg").readOnly = false; });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeSheet(); });
     // actualizar solo cada minuto si la pestaña está visible y no hay nada abierto
-    const puedeRefrescar = () => state.pin && document.visibilityState === "visible" && !state.sheet && $("#settings").hidden;
+    const puedeRefrescar = () => state.pin && document.visibilityState === "visible" && !state.sheet && !$("#board").hidden;
     setInterval(() => { if (puedeRefrescar()) load(true); }, 60000);
     document.addEventListener("visibilitychange", () => { if (puedeRefrescar()) load(true); });
   }
+
+  /* ---------- lo que comparte con el panel de la tienda (js/admin-tienda.js) ---------- */
+  window.ADMIN = { api, toast, errText, loading, esc, money, waLink, firstName, vista, DEMO,
+    barbero: () => barberName((C.barberos[0] || {}).id), volver: closeSettings };
 
   /* ---------- inicio ---------- */
   bind();

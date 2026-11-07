@@ -40,11 +40,17 @@ js/config.js          DATOS DEL NEGOCIO: valores de arranque, lo único que se e
 js/negocio.js         Encima la config que el barbero guardó (API) sobre config.js + reglas de promoción
 js/app.js             Lógica del sitio y de la reserva
 js/admin.js           Lógica del panel
-assets/logo.svg       Logo (corona roja + bigote blanco)
+js/tienda.js          Tienda: reglas de precio y promo (mismas que Code.gs), modo demo, catálogo y pedido
+js/tienda-ui.js       Tienda en el sitio: catálogo, carrito y pedido por WhatsApp
+js/admin-tienda.js    Tienda en el panel: pedidos y editor de productos (foto a Drive)
+assets/logo.svg       Logo dorado (corona de 3 picos + bigote), viewBox 606x485
+assets/icono.svg      Insignia redonda (favicon); apple-touch-icon.png e icono-512.png salen de aquí
+assets/productos-pomada.jpg  Foto real de la pomada de la barbería (producto de ejemplo)
 assets/barberos/      Retratos (lando.jpg es el de ejemplo, 800x800; lando.svg es una versión dibujada a mano)
 apps-script/Code.gs   Backend en Google Apps Script
 apps-script/appsscript.json
 apps-script/INSTRUCCIONES.md   Cómo instalar el backend paso a paso
+pruebas/              Pruebas de Code.gs en Node (sin dependencias). Ver pruebas/LEEME.md
 vercel.json           { "cleanUrls": true } para que /admin funcione
 README.md
 CONTEXTO.md           Este archivo
@@ -144,8 +150,9 @@ Aprendizajes de la instalación:
 
 ## 8. Diseño
 
-- Concepto: **poste de barbero**. Rojo `#d7262e`, blanco `#f4f2ee`, azul `#2a56c6` sobre negro `#0e0f12`.
-- Regla de color: **rojo = acción principal y marca; azul = selección y estado**.
+- Concepto: **la marca de la pomada de Lando, oro sobre negro** (desde noviembre 2026). Oro `--gold #d9b24a`, brillo `--gold-l #efdb7e`, oro viejo `--gold-2 #b8902e`, degradado `--gold-grad`; texto sobre oro `--on-gold #15110a`.
+- Regla de color: **el oro es la acción principal, la marca y la selección**. El rojo (`--danger`) queda solo para errores, cancelado y ocupado.
+- **El poste de barbero conserva el rojo, blanco y azul** (`--pole`), tanto en el hero como en el "cargando". Las demás franjas decorativas usan `--stripes`, oro sobre negro.
 - Tipografía: **Big Shoulders Display** (títulos, mayúsculas) + **Hanken Grotesk** (texto). Google Fonts.
 - Forma: botones y horarios en píldora; paneles con radio de 6px.
 - **Foto del barbero: marco redondo** con el poste girando como aro. La píldora de "Atiende hoy" va montada en el borde, fuera del recorte, para que nunca se corte ni parta el texto en dos líneas.
@@ -155,6 +162,7 @@ Aprendizajes de la instalación:
 
 ## 9. Pendiente de confirmar con Lando
 
+- Productos reales: nombres, precios, piezas, fotos y promociones. Los 5 de `config.js` y de la semilla de `Code.gs` son de ejemplo, menos la pomada, que es la real (foto incluida). Una vez instalada la tienda, Lando los carga desde el panel.
 - Número de WhatsApp real, dirección real y ubicación en el mapa.
 - Foto real de Lando (**cuadrada 1:1**, porque el marco es redondo) y sus datos: experiencia, especialidad, bio, frase, días.
 - Cuenta de Google para la hoja de citas (idealmente una de la barbería, no la personal de Cristian).
@@ -207,7 +215,7 @@ npx serve .
 
 ## 14. Pruebas
 
-No hay suite de pruebas en el repo. Lo que se ha usado para verificar cambios grandes, siempre en archivos temporales fuera del proyecto:
+En `pruebas/` están las de la tienda y del backend: `node pruebas/tienda-backend.test.js` y `node pruebas/tienda-paridad.test.js`. Además, para cambios grandes se ha usado esto, en archivos temporales fuera del proyecto:
 
 - **Lógica de `Code.gs`**: no se puede ejecutar fuera de Google, pero sí evaluando el archivo en Node con hojas de cálculo falsas (`SpreadsheetApp`, `PropertiesService`, `CacheService` simulados). Sirve para probar el mapeo hoja↔JSON, las validaciones y las reglas de promoción.
 - **Sitio y panel completos**: un servidor local en Python que imita el contrato de la API y reescribe `apiUrl` al vuelo, más Chrome headless manejando la interfaz desde una página que mete `index.html` o `admin.html` en un iframe. Ojo: `--virtual-time-budget` de Chrome congela algunos `fetch`; conviene correr en tiempo real y que la página reporte el resultado al servidor.
@@ -215,7 +223,18 @@ No hay suite de pruebas en el repo. Lo que se ha usado para verificar cambios gr
 
 Si estas pruebas se van a repetir seguido, vale la pena meterlas al repo en una carpeta `pruebas/`.
 
-## 15. Estado del trabajo (23 de octubre de 2026)
+## 15. Estado del trabajo (6 de noviembre de 2026)
+
+**Marca dorada y tienda.** Sin commitear todavía, sobre `main` (`449a017`).
+1. Logo nuevo en oro, a partir de la imagen de la marca de Lando, más una insignia redonda para el favicon. El sitio y el panel pasaron a negro y oro; el poste sigue tricolor.
+2. Tienda con productos administrables:
+   - Sitio: sección `#tienda` con filtro por categoría y carrito flotante. El pedido se aparta en la hoja (descuenta piezas) y luego se manda por WhatsApp.
+   - Panel: ícono de bolsa con contador de pedidos pendientes. Pedidos (entregar, cancelar con devolución de piezas, reactivar) y productos (foto a Drive, precio, piezas, visible, promoción con fechas).
+   - Promos por producto: oferta, porcentaje, precio con corte y por cantidad (NxM). `js/tienda.js` y `Code.gs` calculan igual; `pruebas/tienda-paridad.test.js` lo verifica.
+   - **Paso manual para producción:** pegar el `Code.gs` nuevo, ejecutar `configurar()` (pide el permiso de Drive) y crear una versión nueva de la implementación. Ver "Tienda" en `apps-script/INSTRUCCIONES.md`. Mientras tanto, el sitio muestra los productos de `config.js` y los pedidos fallan con "revisa tu conexión".
+   - Para la migración a la API de SDS: hay que agregar las tablas `productos` y `pedidos`, el endpoint `productos` y las operaciones del panel con el mismo contrato. Las fotos pasarían de Drive a R2.
+
+## 15b. Estado anterior (23 de octubre de 2026)
 
 Rama `feature/cambios`, salida de `main` en `ef16288`. Cambios hechos y **sin commitear**:
 

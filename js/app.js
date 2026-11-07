@@ -376,7 +376,7 @@
     if (reduced) return;
     const box = document.createElement("div");
     box.className = "confetti";
-    const colors = ["#d7262e", "#f4f2ee", "#2a56c6"];
+    const colors = ["#d9b24a", "#efdb7e", "#a8822a"];
     for (let i = 0; i < 70; i++) {
       const p = document.createElement("i");
       p.style.left = Math.random() * 100 + "vw";
@@ -490,7 +490,7 @@
   }
 
   function setupReveal() {
-    $$(".promos .h2, .promos .lead, .prices-feature, .price-list div, .crew .h2, .booking .h2, .booking .lead, .visit .h2").forEach((el, i) => {
+    $$(".promos .h2, .promos .lead, .shop .h2, .shop .lead, .prices-feature, .price-list div, .crew .h2, .booking .h2, .booking .lead, .visit .h2").forEach((el, i) => {
       if (!el.hasAttribute("data-reveal")) { el.setAttribute("data-reveal", ""); if (el.matches(".price-list div")) el.style.setProperty("--i", i % 6); }
     });
     if (reduced || !("IntersectionObserver" in window)) return;

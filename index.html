@@ -8,7 +8,8 @@
   <meta name="theme-color" content="#0E0F12">
   <meta property="og:title" content="El Rey del Bigote">
   <meta property="og:description" content="Reserva tu corte en un minuto y llega directo a la silla.">
-  <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+  <link rel="icon" type="image/svg+xml" href="assets/icono.svg">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -26,6 +27,7 @@
       <nav class="nav-links" aria-label="Secciones">
         <a href="#promos">Promos</a>
         <a href="#precios">Precios</a>
+        <a href="#tienda">Tienda</a>
         <a href="#lando">Barbero</a>
         <a href="#visitanos">Horario</a>
       </nav>
@@ -97,6 +99,16 @@
           <div><dt>Arreglo de barba<small>20 min</small></dt><dd>$80</dd></div>
           <div><dt>Degradado<small>A cualquier corte</small></dt><dd>+$20</dd></div>
         </dl>
+      </div>
+    </section>
+
+    <!-- Tienda -->
+    <section class="shop" id="tienda" aria-labelledby="tienda-t">
+      <div class="wrap">
+        <h2 id="tienda-t" class="h2">Llévate lo del rey</h2>
+        <p class="lead">Lo que usamos en la silla, para que te veas igual en casa. Apártalo aquí, avísanos por WhatsApp y lo recoges en la barbería.</p>
+        <div class="shop-cats" id="shopCats" aria-label="Filtrar por tipo" hidden></div>
+        <ul class="shop-grid" id="shopGrid"></ul>
       </div>
     </section>
 
@@ -217,6 +229,67 @@
       </div>
     </div>
 
+    <!-- Pedido de la tienda -->
+    <button type="button" class="cart-fab" id="cartFab" hidden>
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1 12H6Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="cart-fab-n" id="cartCount">0</span><span class="cart-fab-t">Tu pedido</span><strong id="cartSum">$0</strong>
+    </button>
+
+    <div class="cart" id="cart" hidden>
+      <div class="cart-card" role="dialog" aria-modal="true" aria-labelledby="cartTitle" tabindex="-1">
+        <button type="button" class="icon-btn cart-x" id="cartClose" aria-label="Cerrar">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+
+        <div id="cartView">
+          <h2 id="cartTitle">Tu pedido</h2>
+          <ul class="cart-lines" id="cartLines"></ul>
+
+          <label class="addon cart-combo" id="cartCombo" hidden>
+            <input type="checkbox" id="conCorte">
+            <span class="addon-box" aria-hidden="true"></span>
+            <span class="addon-text"><strong>Lo recojo cuando vaya a mi corte</strong><small>Los productos con precio especial con corte te salen más baratos.</small></span>
+          </label>
+
+          <dl class="cart-totals" id="cartTotals">
+            <div><dt>Subtotal</dt><dd id="cartSub">$0</dd></div>
+            <div class="cart-save" id="cartSaveRow" hidden><dt>Te ahorras</dt><dd id="cartSave">$0</dd></div>
+            <div class="cart-total"><dt>Total</dt><dd id="cartTotal">$0</dd></div>
+          </dl>
+
+          <form id="cartForm" novalidate>
+            <label class="field">
+              <span>Nombre</span>
+              <input type="text" id="cName" autocomplete="name" placeholder="Ej. Juan Pérez" required>
+              <small class="err" id="cNameErr"></small>
+            </label>
+            <label class="field">
+              <span>WhatsApp</span>
+              <input type="tel" id="cPhone" autocomplete="tel" inputmode="numeric" placeholder="10 dígitos" maxlength="14" required>
+              <small class="err" id="cPhoneErr"></small>
+            </label>
+            <label class="field">
+              <span>Nota <em>(opcional)</em></span>
+              <input type="text" id="cNote" maxlength="200" placeholder="Ej. paso el sábado en la tarde">
+            </label>
+            <p class="form-error" id="cartErr" role="alert"></p>
+            <button type="submit" class="btn btn-red btn-lg cart-send" id="cartSend">Apartar pedido</button>
+            <p class="cart-foot">Pagas al recogerlo en la barbería.</p>
+          </form>
+        </div>
+
+        <div class="cart-done" id="cartDone" hidden>
+          <img class="done-logo" src="assets/logo.svg" alt="" width="110" height="88">
+          <h2 id="cartDoneTitle">¡Pedido apartado!</h2>
+          <p id="cartDoneText"></p>
+          <a class="btn btn-whats btn-lg" id="cartWhats" href="#" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3a.5.5 0 0 0 0-.4l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .1-1.3c0-.1-.2-.2-.4-.3Z"/></svg>
+            Avisar por WhatsApp
+          </a>
+          <button type="button" class="btn btn-line" id="cartDoneClose">Seguir viendo</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Visítanos -->
     <section class="visit" id="visitanos" aria-labelledby="visit-t">
       <div class="wrap">
@@ -243,6 +316,8 @@
 
   <script src="js/config.js"></script>
   <script src="js/negocio.js"></script>
+  <script src="js/tienda.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/tienda-ui.js"></script>
 </body>
 </html>

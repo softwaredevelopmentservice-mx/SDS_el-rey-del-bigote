@@ -6,7 +6,8 @@
   <title>Panel El Rey del Bigote</title>
   <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#0E0F12">
-  <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+  <link rel="icon" type="image/svg+xml" href="assets/icono.svg">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -41,6 +42,9 @@
         <div class="nav-actions">
           <button type="button" class="icon-btn" id="refresh" aria-label="Actualizar citas" title="Actualizar">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>
+          </button>
+          <button type="button" class="icon-btn" id="toShop" aria-label="Tienda" title="Tienda: pedidos y productos">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1 12H6Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="icon-badge" id="shopBadge" hidden>0</span>
           </button>
           <button type="button" class="icon-btn" id="toSettings" aria-label="Precios, promos y horarios" title="Precios, promos y horarios">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 9 19.4a1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 4.6 9a1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg>
@@ -88,6 +92,93 @@
         <button type="button" class="btn btn-red btn-lg" id="setSave">Guardar cambios</button>
       </div>
     </main>
+
+  <!-- Tienda: pedidos y productos (js/admin-tienda.js) -->
+  <main class="wrap board shop-admin" id="shop" hidden>
+    <div class="set-head">
+      <button type="button" class="btn btn-line btn-sm" id="shopBack">← Volver a las citas</button>
+      <p class="sync" id="shopSync" aria-live="polite"></p>
+    </div>
+    <h1 class="h2">Tu tienda</h1>
+    <div class="tabs" role="tablist" aria-label="Tienda">
+      <button type="button" role="tab" aria-selected="true" data-tab="pedidos">Pedidos <span class="tab-n" id="tabPedN"></span></button>
+      <button type="button" role="tab" aria-selected="false" data-tab="productos">Productos</button>
+    </div>
+
+    <section id="tabPedidos" role="tabpanel">
+      <div class="list-head">
+        <label class="toggle"><input type="checkbox" id="pedTodos"><span class="toggle-ui" aria-hidden="true"></span>Ver entregados y cancelados</label>
+        <button type="button" class="btn btn-line btn-sm" id="shopRefresh">Actualizar</button>
+      </div>
+      <ol class="pedidos" id="pedidos"></ol>
+    </section>
+
+    <section id="tabProductos" role="tabpanel" hidden>
+      <div class="list-head">
+        <p class="set-note">Toca un producto para cambiar foto, precio, piezas o promoción.</p>
+        <button type="button" class="btn btn-red btn-sm" id="prodNew">+ Nuevo producto</button>
+      </div>
+      <ul class="prods-admin" id="prodsAdmin"></ul>
+    </section>
+  </main>
+
+  </div>
+
+  <!-- Editor de producto -->
+  <div class="sheet" id="prodSheet" hidden>
+    <div class="sheet-card prod-edit" role="dialog" aria-modal="true" aria-labelledby="prodTitle" tabindex="-1">
+      <button type="button" class="icon-btn sheet-x" id="prodClose" aria-label="Cerrar"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      <h2 id="prodTitle">Producto</h2>
+
+      <div class="foto-box">
+        <div class="foto-prev" id="pFotoPrev"></div>
+        <div class="foto-actions">
+          <button type="button" class="btn btn-line btn-sm" id="pFotoBtn">Subir foto</button>
+          <button type="button" class="btn btn-line btn-sm" id="pFotoQuitar" hidden>Quitar</button>
+          <small>Cuadrada se ve mejor. Puedes tomarla con el celular.</small>
+        </div>
+        <input type="file" id="pFoto" accept="image/*" hidden>
+      </div>
+
+      <div class="pe-grid">
+        <label class="set-f wide"><span>Nombre</span><input type="text" id="pNombre" maxlength="80" placeholder="Ej. Pomada formal"></label>
+        <label class="set-f"><span>Categoría</span><input type="text" id="pCat" maxlength="40" list="cats" placeholder="Ej. Cabello"></label>
+        <datalist id="cats"></datalist>
+        <label class="set-f wide"><span>Descripción</span><textarea id="pDesc" rows="2" maxlength="300" placeholder="Para qué sirve, en una o dos líneas"></textarea></label>
+        <label class="set-f"><span>Precio</span><input type="number" id="pPrecio" min="1" max="99999" step="5" inputmode="numeric"></label>
+        <div class="set-f">
+          <span>Piezas en la barbería</span>
+          <div class="stock-ctl">
+            <button type="button" data-stock="-1" aria-label="Una pieza menos">−</button>
+            <input type="number" id="pStock" min="0" max="9999" inputmode="numeric" aria-label="Piezas">
+            <button type="button" data-stock="1" aria-label="Una pieza más">+</button>
+          </div>
+        </div>
+        <label class="toggle pe-visible"><input type="checkbox" id="pVisible"><span class="toggle-ui" aria-hidden="true"></span>Se ve en el sitio</label>
+      </div>
+
+      <div class="pe-promo">
+        <h3>Promoción</h3>
+        <label class="set-f wide"><span>Tipo</span><select id="pTipo"></select></label>
+        <label class="set-f" id="pValorBox" hidden><span id="pValorL">Valor</span><input type="number" id="pValor" min="1" max="99999" inputmode="numeric"></label>
+        <div class="pe-cant" id="pCantBox" hidden>
+          <label class="set-f"><span>Se lleva</span><input type="number" id="pLleva" min="2" max="10" inputmode="numeric"></label>
+          <label class="set-f"><span>Paga</span><input type="number" id="pPaga" min="1" max="9" inputmode="numeric"></label>
+        </div>
+        <div class="pe-fechas" id="pFechas" hidden>
+          <label class="set-f"><span>Desde <em>(opcional)</em></span><input type="date" id="pDesde"></label>
+          <label class="set-f"><span>Hasta <em>(opcional)</em></span><input type="date" id="pHasta"></label>
+        </div>
+        <p class="move-promo" id="pPreview" hidden></p>
+      </div>
+
+      <p class="err" id="pErr" role="alert"></p>
+      <div class="sheet-foot">
+        <button type="button" class="btn btn-line pe-delete" id="pDelete" hidden>Borrar</button>
+        <button type="button" class="btn btn-line" id="pCancel">Cancelar</button>
+        <button type="button" class="btn btn-red" id="pSave">Guardar</button>
+      </div>
+    </div>
   </div>
 
   <!-- Diálogo: cancelar / recorrer -->
@@ -136,6 +227,8 @@
 
   <script src="js/config.js"></script>
   <script src="js/negocio.js"></script>
+  <script src="js/tienda.js"></script>
   <script src="js/admin.js"></script>
+  <script src="js/admin-tienda.js"></script>
 </body>
 </html>

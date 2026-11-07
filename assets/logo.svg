@@ -1,12 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 96" fill="none">
-  <!-- corona roja -->
-  <path d="M30 40 L24 12 L44 26 L60 6 L76 26 L96 12 L90 40 Z" fill="#D7262E"/>
-  <circle cx="24" cy="11" r="4" fill="#F4F2EE"/>
-  <circle cx="60" cy="5" r="4.5" fill="#F4F2EE"/>
-  <circle cx="96" cy="11" r="4" fill="#F4F2EE"/>
-  <rect x="30" y="42" width="60" height="6" rx="1" fill="#2A56C6"/>
-  <!-- bigote blanco -->
-  <path d="M60 62 C54 56 44 55 36 60 C28 65 20 70 10 66 C6 64 4 60 6 57 C7 63 14 65 20 61 C30 54 40 50 50 54 C55 56 58 58 60 59 C62 58 65 56 70 54 C80 50 90 54 100 61 C106 65 113 63 114 57 C116 60 114 64 110 66 C100 70 92 65 84 60 C76 55 66 56 60 62 Z" fill="#F4F2EE"/>
-  <path d="M10 66 C4 70 2 78 8 84 C6 78 9 73 14 70 Z" fill="#F4F2EE"/>
-  <path d="M110 66 C116 70 118 78 112 84 C114 78 111 73 106 70 Z" fill="#F4F2EE"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="209 272 606 485" fill="none">
+  <defs>
+    <linearGradient id="oro" gradientUnits="userSpaceOnUse" x1="250" y1="0" x2="775" y2="0">
+      <stop offset="0" stop-color="#A8822A"/>
+      <stop offset=".28" stop-color="#CDA947"/>
+      <stop offset=".5" stop-color="#EFDB7E"/>
+      <stop offset=".72" stop-color="#CDA947"/>
+      <stop offset="1" stop-color="#A8822A"/>
+    </linearGradient>
+    <path id="mitad" d="M512 632 C536 592 600 584 642 610 C670 628 688 664 714 668 C738 671 746 646 732 633 C726 627 718 626 711 624 C728 606 772 614 775 658 C778 712 716 746 630 743 C574 741 530 716 512 682 Z"/>
+  </defs>
+  <g fill="url(#oro)">
+    <path d="M300 372 L428 458 L512 314 L597 458 L724 372 L672 572 Q512 532 352 572 Z"/>
+    <circle cx="291" cy="355" r="23"/><circle cx="512" cy="301" r="23"/><circle cx="733" cy="355" r="23"/>
+    <use href="#mitad"/>
+    <use href="#mitad" transform="translate(1024 0) scale(-1 1)"/>
+  </g>
 </svg>

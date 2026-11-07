@@ -58,6 +58,40 @@ El código nuevo agrega la columna **Base** en la hoja Citas (el precio sin prom
 2. Ejecuta **configurar**. Rellena `Base` en las citas viejas con el precio que ya tenían y crea las hojas que falten.
 3. **Implementar > Administrar implementaciones > lápiz > Versión: Nueva versión > Implementar.**
 
+## Tienda: productos y pedidos (noviembre 2026)
+El sitio tiene una sección **Tienda**. El cliente aparta productos, el sistema descuenta las piezas y él manda el pedido por WhatsApp. Lando lo maneja todo desde el panel, en el ícono de la bolsa.
+
+### Instalarla (una sola vez)
+1. Pega otra vez **todo** el `Code.gs` nuevo y guarda.
+2. Ejecuta **configurar**. Google va a pedir un permiso nuevo, **Google Drive**: acéptalo con la misma cuenta. Es para guardar las fotos de los productos.
+   - Se crean las pestañas **Productos** (con 5 productos de ejemplo) y **Pedidos**.
+   - En Drive aparece la carpeta **El Rey del Bigote · Fotos de productos**, compartida como "cualquiera con el enlace puede ver" para que las fotos se vean en el sitio. No la borres ni le cambies el permiso.
+3. **Implementar > Administrar implementaciones > lápiz > Versión: Nueva versión > Implementar.** La URL no cambia.
+4. Publica el sitio (push a `main`).
+5. Prueba: `TU_URL/exec?action=productos` debe responder la lista de productos.
+
+### Qué hace Lando en el panel (bolsa, arriba a la derecha)
+- **Pedidos:** el número en la bolsa son los pendientes. Cada pedido trae lo que se llevó, el total, lo que se ahorró y si lo recoge con su corte.
+  - **Avisar que está listo:** abre WhatsApp con el mensaje para el cliente.
+  - **Entregado:** cuando ya se lo llevó y pagó.
+  - **Cancelar:** las piezas regresan solas al inventario. **Reactivar** las vuelve a apartar, siempre que alcancen.
+- **Productos:** toca uno para cambiarle la foto (directo desde la cámara del celular), el nombre, la categoría, el precio, las piezas, si se ve en el sitio y la promoción. Con **+ Nuevo producto** se da de alta uno.
+- **Promociones:** una por producto, con fechas de inicio y fin opcionales.
+  - **Precio de oferta:** sale tachado el precio normal, por ejemplo ~~$220~~ $190.
+  - **Porcentaje:** por ejemplo 15% de descuento.
+  - **Precio especial con corte:** más barato si el cliente marca "lo recojo cuando vaya a mi corte".
+  - **Por cantidad:** 2x1, 3x2, etc.
+
+### Cómo funcionan las piezas
+- Al apartar, se descuentan del inventario. Si alguien más se llevó las últimas, el sitio avisa y ajusta el carrito.
+- Un producto con 0 piezas sale como **Agotado** y no se puede pedir.
+- Máximo 20 piezas de un producto por pedido y 5 pedidos por hora por teléfono, para que nadie aparte todo de broma.
+- El catálogo del sitio se cachea 60 segundos. Cada pedido o cambio en el panel borra esa caché.
+
+### Hojas
+- **Productos:** se puede editar a mano, pero es más seguro hacerlo desde el panel porque valida precios y promos. La columna **Orden** decide el orden en el sitio.
+- **Pedidos:** una fila por pedido. **Detalle** se puede leer tal cual. **Lineas** es lo que usa el sistema para regresar piezas: no la edites.
+
 ## Uso diario para Lando
 - Para ver la agenda del día, filtra la columna **Fecha**.
 - Si alguien cancela, cambia su **Estado** a `Cancelada` y ese horario se libera en el sitio.
